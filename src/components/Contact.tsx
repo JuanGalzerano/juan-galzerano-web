@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, Check, Copy, Mail, Phone } from 'lucide-react'
+import { ArrowUpRight, Check, Copy, Mail } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from './BrandIcons'
 import { contact, nav, site } from '../content'
 import { Reveal } from './Reveal'
@@ -8,7 +8,6 @@ import { SectionHead } from './SectionHead'
 const links = [
   { label: 'GitHub', value: site.githubUser, href: site.github, icon: GithubIcon },
   { label: 'LinkedIn', value: 'juan-ignacio-galzerano', href: site.linkedin, icon: LinkedinIcon },
-  { label: 'Teléfono', value: site.phone, href: `tel:${site.phone.replace(/[^+\d]/g, '')}`, icon: Phone },
 ]
 
 export function Contact() {

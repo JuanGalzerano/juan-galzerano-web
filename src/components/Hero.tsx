@@ -48,14 +48,9 @@ export function Hero() {
           animate="show"
           className="mt-9 grid gap-10 md:grid-cols-[1fr_auto] md:items-end"
         >
-          <div>
-            <p className="max-w-xl text-lg leading-relaxed text-chalk-dim sm:text-xl">
-              {site.role}. {site.tagline}
-            </p>
-            <p className="tag mt-5 flex items-center gap-2 text-chalk-faint">
-              <MapPin size={13} /> {site.location}
-            </p>
-          </div>
+          <p className="tag flex items-center gap-2 text-chalk-faint">
+            <MapPin size={13} /> {site.location}
+          </p>
 
           <a
             href="#proyectos"
@@ -90,6 +85,9 @@ export function Hero() {
           </p>
         </motion.div>
       </div>
+
+      {/* Cierre de la escena 3D: de acá para abajo el sitio es plano. */}
+      <div className="hero-edge mt-20 sm:mt-28" aria-hidden />
     </section>
   )
 }

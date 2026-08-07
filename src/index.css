@@ -91,6 +91,46 @@
     opacity: 0.9;
     filter: saturate(1.18) contrast(1.13) drop-shadow(0 0 18px rgba(98, 223, 210, 0.2));
     mix-blend-mode: screen;
+    /* Se apaga contra el borde inferior para que muera en el separador. */
+    mask-image: linear-gradient(to bottom, #000 62%, rgba(0, 0, 0, 0.35) 88%, transparent 100%);
+  }
+
+  /* Separador: donde termina la escena 3D y arranca el sitio plano. */
+  .hero-edge {
+    position: relative;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(84, 230, 214, 0.4) 22%,
+      rgba(156, 140, 255, 0.5) 50%,
+      rgba(84, 230, 214, 0.4) 78%,
+      transparent
+    );
+  }
+
+  /* Resplandor difuso encima de la línea. */
+  .hero-edge::before {
+    content: '';
+    position: absolute;
+    inset: -30px 0 auto;
+    height: 60px;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 100% at 50% 50%, rgba(98, 223, 210, 0.1), transparent 70%);
+  }
+
+  /* Nodo central, como un empalme del cable. */
+  .hero-edge::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--color-ink-900);
+    border: 1px solid rgba(114, 242, 226, 0.75);
+    box-shadow: 0 0 12px rgba(98, 223, 210, 0.45);
   }
 
   .hero-scene canvas {

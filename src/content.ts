@@ -7,14 +7,12 @@ export const site = {
   name: 'Juan Ignacio Galzerano',
   shortName: 'Juan Galzerano',
   role: 'Estudiante de Ingeniería en Sistemas de Información',
-  tagline: 'Sistemas de bajo nivel, backend y datos.',
   location: 'CABA — Argentina',
   email: 'galzeranojuan@gmail.com',
-  phone: '(54) 11 3631-4322',
   github: 'https://github.com/JuanGalzerano',
   githubUser: 'JuanGalzerano',
   linkedin: 'https://www.linkedin.com/in/juan-ignacio-galzerano/',
-  status: 'Abierto a pasantías y primer empleo IT',
+  status: 'Estudiante de Ing. en Sistemas — UTN',
 } as const
 
 export const nav = [
