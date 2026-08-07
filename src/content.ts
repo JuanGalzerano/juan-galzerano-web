@@ -13,7 +13,7 @@ export const site = {
   phone: '(54) 11 3631-4322',
   github: 'https://github.com/JuanGalzerano',
   githubUser: 'JuanGalzerano',
-  linkedin: 'https://linkedin.com/in/JuanIgnacio-Galzerano',
+  linkedin: 'https://www.linkedin.com/in/juan-ignacio-galzerano/',
   status: 'Abierto a pasantías y primer empleo IT',
 } as const
 
@@ -46,14 +46,12 @@ export const profile = {
   eyebrow: 'Perfil',
   title: 'Aprendo construyendo cosas que tienen que funcionar de verdad.',
   intro:
-    'Estudiante de Ingeniería en Sistemas de Información en la UTN FRBA con interés en potenciar mi desarrollo en el sector IT. Vengo de investigación UX y documentación técnica, y hoy escribo software: kernels didácticos en C, un compilador, y un comparador de precios con datos reales de retailers argentinos.',
-  statement:
-    'Me interesa entender el sistema completo — cómo se planifica un proceso, cómo viaja un byte por un socket, por qué una fuente de datos miente. Escribo la documentación como parte del trabajo, no después.',
+    'Estudiante de Ingeniería en Sistemas de Información en la UTN FRBA con interés en potenciar mi desarrollo en el sector IT. Vengo de investigación UX y documentación técnica, y hoy escribo software: un kernel distribuido en C y un comparador de precios con datos reales de retailers argentinos, en producción.',
   facts: [
     { label: 'Ubicación', value: 'CABA, Argentina' },
-    { label: 'Universidad', value: 'UTN FRBA — 16 materias (40%)' },
+    { label: 'Universidad', value: 'UTN FRBA' },
+    { label: 'Carrera', value: 'Ingeniería en Sistemas de Información' },
     { label: 'Promedio', value: '8,5' },
-    { label: 'Inglés', value: 'Intermedio (B1+)' },
   ],
 } as const
 
@@ -101,27 +99,8 @@ export const projects: Project[] = [
       { label: 'Fuentes activas', value: 'Frávega, Cetrogar, Naldo, OnCity, Megatone, Compra Gamer' },
       { label: 'Diseño', value: 'un adapter por retailer, estado declarado por fuente (activa / experimental / bloqueada)' },
       { label: 'Diferencial', value: 'agrupa por producto real e informa de dónde salió cada dato' },
-      { label: 'Estado', value: 'MVP funcionando en local con datos reales de retailers argentinos' },
+      { label: 'Estado', value: 'desplegado en servidores propios, con datos reales de retailers argentinos' },
     ],
-  },
-  {
-    name: 'Compilador Micro (Fischer)',
-    repo: 'compilador-micro-fischer',
-    href: 'https://github.com/JuanGalzerano/compilador-micro-fischer',
-    summary:
-      'Estudio del compilador del lenguaje Micro de Fischer en C: scanner, parser, tabla de símbolos y generación de código intermedio.',
-    language: 'C',
-    languageColor: '#8f9296',
-    tags: ['Scanner', 'Parser', 'Tabla de símbolos', 'Código intermedio'],
-  },
-  {
-    name: 'Racing funcional',
-    repo: 'prolog-racing-functions',
-    href: 'https://github.com/JuanGalzerano/prolog-racing-functions',
-    summary: 'Simulación de un juego de carreras resuelta con paradigma funcional.',
-    language: 'Haskell',
-    languageColor: '#5e5086',
-    tags: ['Paradigma funcional', 'Pattern matching'],
   },
   {
     name: 'TDH vs Estudio',
@@ -132,6 +111,7 @@ export const projects: Project[] = [
     language: 'Wollok',
     languageColor: '#a23738',
     tags: ['POO', 'Wollok', 'Game loop'],
+    featured: true,
   },
 ]
 
@@ -182,13 +162,13 @@ export const education = {
     title: 'Ingeniería en Sistemas de Información',
     institution: 'Universidad Tecnológica Nacional — FRBA, Buenos Aires',
     period: 'mar 2024 — Presente',
-    detail: '16 materias aprobadas (40%) · Promedio 8,5',
+    detail: 'Promedio 8,5',
   },
   courses: [
+    { title: 'Certificación en SEO', institution: 'BIGSEO', date: '' },
     { title: 'Certificación en Python', institution: 'Aprende Programando', date: 'mar 2024' },
     { title: 'Certificación en Diseño Web', institution: 'Aprende Programando', date: 'nov 2023' },
   ],
-  languages: [{ title: 'Inglés', detail: 'Intermedio (B1+)' }],
 } as const
 
 export const contact = {

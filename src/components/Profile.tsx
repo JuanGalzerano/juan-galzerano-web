@@ -10,9 +10,6 @@ export function Profile() {
       <div className="mt-12 grid gap-12 md:grid-cols-[1.4fr_1fr] md:gap-16">
         <Reveal delay={0.05}>
           <p className="text-lg leading-relaxed text-chalk-dim">{profile.intro}</p>
-          <p className="mt-6 border-l-2 border-draft pl-5 font-display text-xl leading-snug text-chalk italic sm:text-2xl">
-            {profile.statement}
-          </p>
         </Reveal>
 
         <Reveal delay={0.12}>

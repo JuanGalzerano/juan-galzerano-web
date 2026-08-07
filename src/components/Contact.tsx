@@ -7,7 +7,7 @@ import { SectionHead } from './SectionHead'
 
 const links = [
   { label: 'GitHub', value: site.githubUser, href: site.github, icon: GithubIcon },
-  { label: 'LinkedIn', value: 'JuanIgnacio-Galzerano', href: site.linkedin, icon: LinkedinIcon },
+  { label: 'LinkedIn', value: 'juan-ignacio-galzerano', href: site.linkedin, icon: LinkedinIcon },
   { label: 'Teléfono', value: site.phone, href: `tel:${site.phone.replace(/[^+\d]/g, '')}`, icon: Phone },
 ]
 

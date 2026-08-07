@@ -1,4 +1,5 @@
 import { ArrowUp } from 'lucide-react'
+import { Backdrop } from './components/Backdrop'
 import { Nav } from './components/Nav'
 import { Hero } from './components/Hero'
 import { Profile } from './components/Profile'
@@ -12,7 +13,8 @@ import { site } from './content'
 export default function App() {
   return (
     <div className="grain relative min-h-screen">
-      <div className="blueprint-grid" aria-hidden />
+      <Backdrop />
+      <div className="spotlight" aria-hidden />
 
       <Nav />
 

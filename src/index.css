@@ -5,12 +5,12 @@
   --font-sans: 'Archivo', 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  /* Blueprint palette: ink canvas, acid draft lines, warm annotation */
-  --color-ink-900: #08090b;
-  --color-ink-800: #0b0c0e;
-  --color-ink-700: #121418;
-  --color-ink-600: #1a1d23;
-  --color-line: #24282f;
+  /* Fondo tomado del sitio de Valentin Torassa: tinta azulada con tintes teal/violeta */
+  --color-ink-900: #07090e;
+  --color-ink-800: #090d14;
+  --color-ink-700: #101721;
+  --color-ink-600: #0b1018;
+  --color-line: #232a36;
   --color-chalk: #e7e9ec;
   --color-chalk-dim: #9aa1ad;
   --color-chalk-faint: #5f6670;
@@ -21,7 +21,12 @@
 @layer base {
   :root {
     color-scheme: dark;
-    --grid: 88px;
+    /* Las escribe Backdrop.tsx en cada frame: parallax (--px/--py) y
+       posición del cursor (--mx/--my). Valores neutros por defecto. */
+    --px: 0px;
+    --py: 0px;
+    --mx: 50%;
+    --my: 30%;
   }
 
   html {
@@ -35,14 +40,112 @@
     }
   }
 
+  /* Fondo en capas: dos halos radiales sobre un degradado vertical. */
   body {
     margin: 0;
-    background-color: var(--color-ink-800);
+    background:
+      radial-gradient(
+        circle at calc(50% + var(--px) * 1.6) calc(-14% + var(--py) * 1.2),
+        rgba(98, 223, 210, 0.1),
+        transparent 36rem
+      ),
+      radial-gradient(
+        circle at calc(92% - var(--px) * 2) calc(42% - var(--py) * 1.4),
+        rgba(156, 140, 255, 0.035),
+        transparent 30rem
+      ),
+      linear-gradient(180deg, #07090e 0%, #090d14 52%, #07090e 100%);
+    background-attachment: fixed;
     color: var(--color-chalk);
     font-family: var(--font-sans);
     font-synthesis-weight: none;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+  }
+
+  /* Grilla de 56px que se desvanece hacia los bordes. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(156, 140, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(156, 140, 255, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    background-position: var(--px) var(--py);
+    mask-image: radial-gradient(
+      ellipse 100% 80% at calc(50% + var(--px)) calc(40% + var(--py)),
+      #000 20%,
+      transparent 80%
+    );
+  }
+
+  /* Escena 3D del hero (three.js). Sólo vive en la primera sección. */
+  .hero-scene {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.9;
+    filter: saturate(1.18) contrast(1.13) drop-shadow(0 0 18px rgba(98, 223, 210, 0.2));
+    mix-blend-mode: screen;
+  }
+
+  .hero-scene canvas {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transform: scale(1.015);
+    transition:
+      opacity 0.7s ease,
+      transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-scene.is-ready canvas {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @media (max-width: 700px) {
+    .hero-scene {
+      opacity: 0.78;
+      filter: saturate(1.12) contrast(1.12) drop-shadow(0 0 10px rgba(98, 223, 210, 0.18));
+    }
+  }
+
+  /* Halo que sigue al cursor. */
+  .spotlight {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 30rem at var(--mx) var(--my), rgba(215, 255, 62, 0.055), transparent 70%),
+      radial-gradient(circle 14rem at var(--mx) var(--my), rgba(98, 223, 210, 0.05), transparent 70%);
+    transition: opacity 0.4s ease;
+  }
+
+  @media (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .spotlight {
+      opacity: 0;
+    }
+  }
+
+  /* Scanlines finas encima de todo. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.24;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.012) 0 1px,
+      transparent 1px 6px
+    );
   }
 
   ::selection {
@@ -57,19 +160,6 @@
 }
 
 @layer components {
-  /* Millimetre-paper backdrop, fades out toward the bottom of the viewport */
-  .blueprint-grid {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(to right, color-mix(in oklab, var(--color-line) 70%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in oklab, var(--color-line) 70%, transparent) 1px, transparent 1px);
-    background-size: var(--grid) var(--grid);
-    mask-image: radial-gradient(ellipse 120% 90% at 50% 0%, #000 10%, transparent 78%);
-  }
-
   /* Fine film grain so flat panels do not read as plastic */
   .grain::after {
     content: '';
