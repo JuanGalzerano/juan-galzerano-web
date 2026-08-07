@@ -59,14 +59,6 @@ Sumá un objeto a `projects` en `src/content.ts`:
 }
 ```
 
-## Diseño
-
-Fondo tinta azulada con halos teal/violeta, grilla de 56px y scanlines — portado del sitio
-de [Valentin Torassa](https://github.com/ValentinTorassa/ValenTorassa-Web). Tipografías:
-Instrument Serif (display), Archivo (texto), JetBrains Mono (etiquetas y datos). Acento
-verde ácido `#d7ff3e`.
-
-Los tokens de color y tipografía están en el bloque `@theme` de [`src/index.css`](src/index.css).
 
 ### Fondo reactivo al mouse
 
