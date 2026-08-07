@@ -118,20 +118,48 @@ export const stack = {
   title: 'Con qué trabajo',
   groups: [
     {
-      title: 'Lenguajes',
-      items: ['C', 'C++', 'Python', 'TypeScript', 'Haskell', 'Wollok', 'SQL'],
+      title: 'Lenguajes, backend y herramientas',
+      items: [
+        'C',
+        'C++',
+        'Python',
+        'TypeScript',
+        'Haskell',
+        'Wollok',
+        'SQL',
+        'Bases de datos',
+        'APIs REST',
+        'Scraping',
+        'Modelado de datos',
+        'Git',
+      ],
     },
     {
       title: 'Sistemas',
-      items: ['Sockets TCP', 'Concurrencia (pthreads, semáforos)', 'Gestión de memoria', 'Linux', 'Makefile', 'Git'],
-    },
-    {
-      title: 'Backend y datos',
-      items: ['FastAPI', 'PostgreSQL', 'SQLite', 'APIs REST / GraphQL', 'Scraping', 'Modelado de datos'],
+      items: ['Sockets TCP', 'Concurrencia (pthreads, semáforos)', 'Valgrind', 'Linux', 'Makefile'],
     },
     {
       title: 'Fundamentos y proceso',
-      items: ['POO', 'Estructuras de datos', 'Investigación UX', 'Documentación técnica', 'Trabajo en equipo'],
+      items: [
+        'POO',
+        'Estructuras de datos',
+        'Patrones de diseño',
+        'Programación funcional',
+        'Metodologías ágiles',
+        'Investigación UX',
+        'Documentación técnica',
+      ],
+    },
+    {
+      title: 'Habilidades blandas',
+      items: [
+        'Trabajo en equipo',
+        'Comunicación técnica',
+        'Resolución de problemas',
+        'Autonomía',
+        'Adaptabilidad',
+        'Pensamiento analítico',
+      ],
     },
   ],
 } as const
