@@ -80,7 +80,7 @@ export const Topology: React.FC<Props> = ({ duration }) => {
       title="Seis procesos, un solo canal"
       duration={duration}
     >
-      <svg width={1680} height={760} viewBox="0 0 1920 760" style={{ overflow: 'visible' }}>
+      <svg width={1680} height={700} viewBox="0 0 1920 700" style={{ overflow: 'visible' }}>
         {/* Enlaces: se dibujan con stroke-dashoffset para que parezcan tenderse. */}
         {EDGES.map(([from, to], i) => {
           const a = MODULES[from];
@@ -173,16 +173,6 @@ export const Topology: React.FC<Props> = ({ duration }) => {
           );
         })}
 
-        <text
-          x={0}
-          y={750}
-          fill={colors.chalkFaint}
-          fontFamily={fontFamily.mono}
-          fontSize={22}
-          opacity={spring({ frame: frame - beat(90), fps: springFps(fps), config: { damping: 200 } })}
-        >
-          utils no corre aparte: es la librería compartida de serialización
-        </text>
       </svg>
     </SceneFrame>
   );

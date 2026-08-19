@@ -48,7 +48,9 @@ export function Contact() {
           </button>
         </div>
 
-        <ul className="mt-12 grid gap-px border border-line bg-line sm:grid-cols-3">
+        {/* Una columna por link: con grid-cols-3 y dos links quedaba una celda
+            vacía al costado. */}
+        <ul className="mt-12 grid gap-px border border-line bg-line sm:grid-cols-2">
           {links.map(({ label, value, href, icon: Icon }) => (
             <li key={label} className="bg-ink-800">
               <a
