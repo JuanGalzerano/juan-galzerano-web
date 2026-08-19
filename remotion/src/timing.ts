@@ -24,3 +24,25 @@ export const beat = (frames: number) => Math.round(frames / SPEED);
  * `fps * SPEED` la curva es idéntica pero ocupa menos frames.
  */
 export const springFps = (fps: number) => fps * SPEED;
+
+/**
+ * Duración de cada escena del explainer, al ritmo original y en orden.
+ *
+ * Vive acá y no junto a las escenas porque `Root.tsx` necesita el total para
+ * declarar la composición, y exportar una constante desde un archivo de
+ * componentes rompe el fast refresh del Studio.
+ */
+export const SCENE_DURATIONS = [
+  120, // Título
+  240, // Arquitectura — termina de dibujarse cerca del frame 100; el resto es lectura
+  270, // Protocolo
+  300, // Planificación
+  300, // Memoria
+  90, // Cierre
+] as const;
+
+/** Duración total ya escalada por SPEED. */
+export const EXPLAINER_DURATION = SCENE_DURATIONS.reduce(
+  (total, duration) => total + beat(duration),
+  0,
+);

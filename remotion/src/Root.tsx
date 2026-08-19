@@ -1,5 +1,6 @@
 import { Composition } from 'remotion';
-import { KernelExplainer, EXPLAINER_DURATION } from './compositions/KernelExplainer';
+import { KernelExplainer } from './compositions/KernelExplainer';
+import { EXPLAINER_DURATION } from './timing';
 
 /**
  * La viñeta de la topología que acompaña al resumen del proyecto NO vive acá:
