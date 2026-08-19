@@ -8,9 +8,10 @@
 
 import { Config } from '@remotion/cli/config';
 
-// El sitio consume el video como .webm: VP9 mantiene el archivo chico y soporta
-// canal alfa si en algún momento se necesita superponerlo sobre el fondo.
-Config.setCodec('vp9');
+// H.264 y no VP9. El VP9 que sale de este pipeline carga la metadata pero se
+// cae al decodificar en Chrome (PIPELINE_ERROR_DECODE tras un solo frame),
+// mientras que el H.264 decodifica limpio y ademas lo soporta Safari.
+Config.setCodec('h264');
 Config.setPixelFormat('yuv420p');
 Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);

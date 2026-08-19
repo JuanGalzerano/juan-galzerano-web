@@ -67,7 +67,6 @@ export type Project = {
   loop?: boolean
   /** Explainer renderizado con Remotion. Los archivos viven en public/. */
   video?: {
-    webm: string
     mp4: string
     poster: string
     caption: string
@@ -87,7 +86,6 @@ export const projects: Project[] = [
     featured: true,
     loop: true,
     video: {
-      webm: '/kernel-explainer.webm',
       mp4: '/kernel-explainer.mp4',
       poster: '/kernel-explainer.jpg',
       caption: '45 s — arquitectura, protocolo, planificación y memoria',

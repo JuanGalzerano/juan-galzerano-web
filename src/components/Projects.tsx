@@ -85,9 +85,9 @@ function FeaturedCard({ project }: { project: Project }) {
  *
  * Usa `autoplay` nativo, sin gatearlo con IntersectionObserver ni taparlo con
  * un poster: cada capa de más era una forma nueva de que terminara congelado.
- * El costo es que los 2,1 MB del .webm se descargan al cargar la página.
- *
- * El `.mp4` va segundo y sólo lo usa quien no soporte VP9 — pesa 3,2 MB.
+ * H.264 y no VP9: el .webm que salía de este pipeline cargaba la metadata pero
+ * moría al decodificar (PIPELINE_ERROR_DECODE tras un frame), y como iba primero
+ * en los <source> el navegador lo elegía siempre y nunca probaba el .mp4.
  */
 function ProjectVideo({ video }: { video: NonNullable<Project['video']> }) {
   const ref = useAmbientVideo()
@@ -116,10 +116,8 @@ function ProjectVideo({ video }: { video: NonNullable<Project['video']> }) {
         preload="auto"
         poster={video.poster}
         aria-label={video.caption}
-      >
-        <source src={video.webm} type="video/webm" />
-        <source src={video.mp4} type="video/mp4" />
-      </video>
+        src={video.mp4}
+      />
       <figcaption className="tag mt-4 text-chalk-faint">{video.caption}</figcaption>
     </figure>
   )
