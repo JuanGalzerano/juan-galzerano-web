@@ -24,16 +24,26 @@ type ModuleNode = {
   readonly y: number;
   /** Los dos procesos del kernel, resaltados en lima. */
   readonly hub?: boolean;
+  /**
+   * Se dibuja como una pila de cajas: de este proceso corren varias instancias
+   * a la vez, no una sola.
+   */
+  readonly many?: boolean;
 };
 
 const MODULES: readonly ModuleNode[] = [
   { name: 'io', x: 250, y: 120 },
   { name: 'kernel_scheduler', x: 760, y: 120, hub: true },
-  { name: 'cpu', x: 1270, y: 120 },
+  { name: 'cpu', x: 1270, y: 120, many: true },
   { name: 'kernel_memory', x: 1010, y: 400, hub: true },
-  { name: 'memory_stick', x: 1600, y: 400 },
+  { name: 'memory_stick', x: 1600, y: 400, many: true },
   { name: 'swap', x: 1010, y: 660 },
 ];
+
+/** Cuánto se corre cada copia de la pila respecto de la de adelante. */
+const STACK_STEP = { x: 16, y: 14 } as const;
+/** Copias dibujadas detrás de la principal. */
+const STACK_DEPTH = 2;
 
 const IO = 0;
 const SCHEDULER = 1;
@@ -107,6 +117,27 @@ export const Topology: React.FC<Props> = ({ duration }) => {
 
           return (
             <g key={mod.name} opacity={appear} transform={`translate(${mod.x} ${mod.y})`}>
+              {/* Copias de atrás primero, de la más lejana a la más cercana: la
+                  caja principal se dibuja después y las tapa parcialmente, que
+                  es lo que da la sensación de pila. */}
+              {mod.many
+                ? Array.from({ length: STACK_DEPTH }, (_, layer) => {
+                    const depth = STACK_DEPTH - layer;
+                    return (
+                      <rect
+                        key={`stack-${depth}`}
+                        x={-BOX_W / 2 + STACK_STEP.x * depth}
+                        y={-BOX_H / 2 - STACK_STEP.y * depth}
+                        width={BOX_W}
+                        height={BOX_H}
+                        fill={colors.ink800}
+                        stroke={colors.lineStrong}
+                        strokeWidth={2}
+                      />
+                    );
+                  })
+                : null}
+
               <rect
                 x={-BOX_W / 2}
                 y={-BOX_H / 2}
