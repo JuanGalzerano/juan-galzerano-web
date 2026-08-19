@@ -43,8 +43,8 @@ const TRANSITIONS: readonly Transition[] = [
   { from: 2, to: 4, arc: true },
 ];
 
-/** Frames que tarda cada salto. */
-const STEP = 26;
+/** Frames que tarda cada salto entre estados. */
+const STEP = 15;
 
 const BOX_W = 250;
 const BOX_H = 68;
@@ -116,8 +116,8 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
               key={`t-${edge.from}-${edge.to}`}
               d={d}
               fill="none"
-              stroke={live ? colors.draft : colors.line}
-              strokeWidth={live ? 2 : 1.5}
+              stroke={live ? colors.draft : colors.lineStrong}
+              strokeWidth={live ? 3 : 2}
               opacity={spring({ frame: frame - 20, fps, config: { damping: 200 } })}
             />
           );
@@ -136,8 +136,8 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
                 width={BOX_W}
                 height={BOX_H}
                 fill={active ? colors.ink700 : colors.ink800}
-                stroke={active ? colors.draft : colors.line}
-                strokeWidth={active ? 2 : 1.5}
+                stroke={active ? colors.draft : colors.lineStrong}
+                strokeWidth={active ? 3 : 2}
               />
               <text
                 x={0}
@@ -155,7 +155,7 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
 
         {/* El proceso recorriendo la máquina de estados. */}
         <g transform={`translate(${px} ${py})`}>
-          <rect x={-14} y={-14} width={28} height={28} fill={colors.anno} />
+          <rect x={-16} y={-16} width={32} height={32} fill={colors.anno} />
         </g>
 
         {/* Algoritmos de planificación, apareciendo abajo. */}
@@ -169,7 +169,7 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
               transform={`translate(${i * 190} 26)`}
               opacity={spring({ frame: frame - 140 - i * 12, fps, config: { damping: 200 } })}
             >
-              <rect x={0} y={0} width={160} height={62} fill="none" stroke={colors.line} strokeWidth={1.5} />
+              <rect x={0} y={0} width={160} height={62} fill="none" stroke={colors.lineStrong} strokeWidth={2} />
               <text x={80} y={40} textAnchor="middle" fill={colors.chalkDim} fontFamily={fontFamily.mono} fontSize={26}>
                 {algo}
               </text>

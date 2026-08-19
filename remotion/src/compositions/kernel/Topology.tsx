@@ -71,8 +71,8 @@ export const Topology: React.FC<Props> = ({ duration }) => {
               y1={a.y}
               x2={b.x}
               y2={b.y}
-              stroke={colors.line}
-              strokeWidth={1.5}
+              stroke={colors.lineStrong}
+              strokeWidth={2}
               strokeDasharray={length}
               strokeDashoffset={length * (1 - draw)}
             />
@@ -95,8 +95,8 @@ export const Topology: React.FC<Props> = ({ duration }) => {
                 width={BOX_W}
                 height={BOX_H}
                 fill={colors.ink800}
-                stroke={mod.hub ? colors.draft : colors.line}
-                strokeWidth={mod.hub ? 2 : 1.5}
+                stroke={mod.hub ? colors.draft : colors.lineStrong}
+                strokeWidth={mod.hub ? 3 : 2}
               />
               {/* Marcas de registro en las esquinas, como la clase .ticked del sitio. */}
               {mod.hub ? (

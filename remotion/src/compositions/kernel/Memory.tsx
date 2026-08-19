@@ -115,8 +115,8 @@ export const Memory: React.FC<Props> = ({ duration }) => {
           width={BAR.w}
           height={BAR.h}
           fill="none"
-          stroke={colors.line}
-          strokeWidth={1.5}
+          stroke={colors.lineStrong}
+          strokeWidth={2}
         />
         <text x={0} y={BAR.y - 22} fill={colors.chalkFaint} fontFamily={fontFamily.mono} fontSize={22}>
           memoria principal
@@ -141,7 +141,7 @@ export const Memory: React.FC<Props> = ({ duration }) => {
                 height={BAR.h}
                 fill="none"
                 stroke={tooSmall ? colors.anno : colors.chalkFaint}
-                strokeWidth={tooSmall ? 2 : 1}
+                strokeWidth={tooSmall ? 3 : 2}
                 strokeDasharray="6 6"
               />
               <text

@@ -13,6 +13,12 @@ export const colors = {
 
   /* trazo estructural */
   line: '#232a36',
+  /**
+   * Variante más clara del trazo, sólo para los diagramas del explainer. El
+   * `line` del sitio se lee bien contra un panel estático, pero comprimido en
+   * video y a tamaño reducido las líneas finas casi desaparecen.
+   */
+  lineStrong: '#3c4655',
 
   /* texto */
   chalk: '#e7e9ec',

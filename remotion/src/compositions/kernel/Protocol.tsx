@@ -1,4 +1,4 @@
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { colors } from '../../theme';
 import { fontFamily } from '../../fonts';
 import { SceneFrame } from './SceneFrame';
@@ -14,17 +14,33 @@ const FIELDS = [
 
 const TRACK = { x1: 240, x2: 1560, y: 200 } as const;
 
+/** Mitad del ancho de las cajas de los extremos: el cable arranca en su borde. */
+const END_HALF = 130;
+
+/** Frames que tarda el paquete en cruzar el enlace de punta a punta. */
+const CROSSING = 26;
+/** Ida y vuelta. */
+const ROUND_TRIP = CROSSING * 2;
+
 export const Protocol: React.FC<Props> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // El paquete cruza el enlace dos veces: ida (envío) y vuelta (respuesta).
-  const travel = interpolate(frame, [40, 130, 150, 240], [0, 1, 1, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  // Un solo fundido para toda la escena: aparece completa y se lee de una.
+  // Antes cada campo entraba por separado y obligaba a esperar para entender.
+  const enter = spring({ frame: frame - 4, fps, config: { damping: 200, mass: 0.6 } });
 
-  const x = TRACK.x1 + (TRACK.x2 - TRACK.x1) * travel;
+  // El paquete va y vuelve sin parar: pedido y respuesta.
+  const elapsed = Math.max(0, frame - 10);
+  const phase = elapsed % ROUND_TRIP;
+  const leg = (phase % CROSSING) / CROSSING;
+  const travel = phase < CROSSING ? leg : 1 - leg;
+
+  // Recorre sólo el cable, de borde a borde: si llegara al centro de las cajas
+  // se metería adentro de ellas.
+  const from = TRACK.x1 + END_HALF;
+  const to = TRACK.x2 - END_HALF;
+  const x = from + (to - from) * travel;
 
   return (
     <SceneFrame
@@ -33,22 +49,50 @@ export const Protocol: React.FC<Props> = ({ duration }) => {
       title="op_code + buffer, serializado a mano"
       duration={duration}
     >
-      <svg width={1680} height={700} viewBox="0 0 1920 700" style={{ overflow: 'visible' }}>
+      <svg
+        width={1680}
+        height={700}
+        viewBox="0 0 1920 700"
+        style={{ overflow: 'visible' }}
+        opacity={enter}
+      >
         {/* Extremos del enlace. */}
         {[
           { x: TRACK.x1, label: 'cpu' },
           { x: TRACK.x2, label: 'kernel_memory' },
         ].map((end) => (
           <g key={end.label} transform={`translate(${end.x} ${TRACK.y})`}>
-            <rect x={-130} y={-38} width={260} height={76} fill={colors.ink800} stroke={colors.line} strokeWidth={1.5} />
-            <text x={0} y={9} textAnchor="middle" fill={colors.chalkDim} fontFamily={fontFamily.mono} fontSize={26}>
+            <rect
+              x={-END_HALF}
+              y={-38}
+              width={END_HALF * 2}
+              height={76}
+              fill={colors.ink800}
+              stroke={colors.lineStrong}
+              strokeWidth={2}
+            />
+            <text
+              x={0}
+              y={9}
+              textAnchor="middle"
+              fill={colors.chalkDim}
+              fontFamily={fontFamily.mono}
+              fontSize={26}
+            >
               {end.label}
             </text>
           </g>
         ))}
 
         {/* El cable. */}
-        <line x1={TRACK.x1 + 130} y1={TRACK.y} x2={TRACK.x2 - 130} y2={TRACK.y} stroke={colors.line} strokeWidth={1.5} />
+        <line
+          x1={TRACK.x1 + END_HALF}
+          y1={TRACK.y}
+          x2={TRACK.x2 - END_HALF}
+          y2={TRACK.y}
+          stroke={colors.lineStrong}
+          strokeWidth={2}
+        />
         <text
           x={(TRACK.x1 + TRACK.x2) / 2}
           y={TRACK.y - 30}
@@ -61,25 +105,17 @@ export const Protocol: React.FC<Props> = ({ duration }) => {
         </text>
 
         {/* El paquete viajando. */}
-        <g transform={`translate(${x} ${TRACK.y})`} opacity={travel > 0.01 && travel < 0.99 ? 1 : 0}>
-          <rect x={-16} y={-16} width={32} height={32} fill={colors.draft} />
-        </g>
+        <rect x={x - 16} y={TRACK.y - 16} width={32} height={32} fill={colors.draft} />
 
-        {/* Desarmado del paquete: cada campo entra por separado. */}
+        {/* Desarmado del paquete. */}
         <g transform="translate(280 420)">
           <text x={0} y={-40} fill={colors.chalkFaint} fontFamily={fontFamily.mono} fontSize={22}>
-            estructura en el cable
+            estructura del paquete
           </text>
           {FIELDS.reduce<{ nodes: React.ReactNode[]; offset: number }>(
-            (acc, field, i) => {
-              const appear = spring({
-                frame: frame - 60 - i * 14,
-                fps,
-                config: { damping: 200, mass: 0.5 },
-              });
-
+            (acc, field) => {
               acc.nodes.push(
-                <g key={field.label} transform={`translate(${acc.offset} 0)`} opacity={appear}>
+                <g key={field.label} transform={`translate(${acc.offset} 0)`}>
                   <rect
                     x={0}
                     y={0}
@@ -87,7 +123,7 @@ export const Protocol: React.FC<Props> = ({ duration }) => {
                     height={84}
                     fill="none"
                     stroke={field.color}
-                    strokeWidth={1.5}
+                    strokeWidth={2}
                   />
                   <text
                     x={field.width / 2}
@@ -108,14 +144,7 @@ export const Protocol: React.FC<Props> = ({ duration }) => {
           ).nodes}
         </g>
 
-        <text
-          x={280}
-          y={590}
-          fill={colors.chalkDim}
-          fontFamily={fontFamily.sans}
-          fontSize={30}
-          opacity={spring({ frame: frame - 120, fps, config: { damping: 200 } })}
-        >
+        <text x={280} y={590} fill={colors.chalkDim} fontFamily={fontFamily.sans} fontSize={30}>
           Sin librería de RPC: los bytes se arman y se leen a mano en los dos extremos.
         </text>
       </svg>
