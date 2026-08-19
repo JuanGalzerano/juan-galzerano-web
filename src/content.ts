@@ -88,7 +88,7 @@ export const projects: Project[] = [
     video: {
       mp4: '/kernel-explainer.mp4',
       poster: '/kernel-explainer.jpg',
-      caption: '44 s — arquitectura, protocolo, planificación y memoria',
+      caption: '29 s — arquitectura, protocolo, planificación y memoria',
     },
     detail: [
       { label: 'Módulos', value: 'kernel_scheduler · kernel_memory · cpu · memory_stick · swap · io · utils' },

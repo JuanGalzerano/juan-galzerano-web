@@ -1,6 +1,7 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { colors } from '../../theme';
 import { fontFamily } from '../../fonts';
+import { beat, springFps } from '../../timing';
 import { SceneFrame } from './SceneFrame';
 
 type Props = { readonly duration: number };
@@ -44,7 +45,7 @@ const TRANSITIONS: readonly Transition[] = [
 ];
 
 /** Frames que tarda cada salto entre estados. */
-const STEP = 15;
+const STEP = beat(15);
 
 const BOX_W = 250;
 const BOX_H = 68;
@@ -55,7 +56,7 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const start = 40;
+  const start = beat(40);
   const progress = Math.max(0, (frame - start) / STEP);
   const leg = Math.min(Math.floor(progress), PATH.length - 2);
   const within = Math.min(1, progress - leg);
@@ -118,14 +119,14 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
               fill="none"
               stroke={live ? colors.draft : colors.lineStrong}
               strokeWidth={live ? 3 : 2}
-              opacity={spring({ frame: frame - 20, fps, config: { damping: 200 } })}
+              opacity={spring({ frame: frame - beat(20), fps: springFps(fps), config: { damping: 200 } })}
             />
           );
         })}
 
         {/* Estados. */}
         {STATES.map((state, i) => {
-          const appear = spring({ frame: frame - i * 5, fps, config: { damping: 200, mass: 0.5 } });
+          const appear = spring({ frame: frame - i * beat(5), fps: springFps(fps), config: { damping: 200, mass: 0.5 } });
           const active = currentState === i;
 
           return (
@@ -167,7 +168,7 @@ export const Scheduler: React.FC<Props> = ({ duration }) => {
             <g
               key={algo}
               transform={`translate(${i * 190} 26)`}
-              opacity={spring({ frame: frame - 140 - i * 12, fps, config: { damping: 200 } })}
+              opacity={spring({ frame: frame - beat(140) - i * beat(12), fps: springFps(fps), config: { damping: 200 } })}
             >
               <rect x={0} y={0} width={160} height={62} fill="none" stroke={colors.lineStrong} strokeWidth={2} />
               <text x={80} y={40} textAnchor="middle" fill={colors.chalkDim} fontFamily={fontFamily.mono} fontSize={26}>

@@ -7,6 +7,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { colors } from '../../theme';
+import { beat, springFps } from '../../timing';
 import { fontFamily, tag } from '../../fonts';
 
 type Props = {
@@ -38,11 +39,11 @@ export const SceneFrame: React.FC<Props> = ({
   const { fps } = useVideoConfig();
 
   // Entrada: un spring corto, igual que los `Reveal` del sitio.
-  const enter = spring({ frame, fps, config: { damping: 200, mass: 0.6 } });
+  const enter = spring({ frame, fps: springFps(fps), config: { damping: 200, mass: 0.6 } });
 
   // Salida: los últimos 12 frames se van a negro para encadenar con la escena
   // siguiente sin corte duro.
-  const exit = interpolate(frame, [duration - 12, duration], [1, 0], {
+  const exit = interpolate(frame, [duration - beat(12), duration], [1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });

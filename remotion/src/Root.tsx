@@ -1,5 +1,5 @@
 import { Composition } from 'remotion';
-import { KernelExplainer } from './compositions/KernelExplainer';
+import { KernelExplainer, EXPLAINER_DURATION } from './compositions/KernelExplainer';
 
 /**
  * La viñeta de la topología que acompaña al resumen del proyecto NO vive acá:
@@ -17,7 +17,7 @@ export const RemotionRoot: React.FC = () => {
       width={1920}
       height={1080}
       fps={30}
-      durationInFrames={1320}
+      durationInFrames={EXPLAINER_DURATION}
     />
   );
 };

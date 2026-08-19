@@ -6,6 +6,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { colors } from '../../theme';
+import { beat, springFps } from '../../timing';
 import { fontFamily, tag } from '../../fonts';
 
 type Props = { readonly duration: number };
@@ -15,9 +16,9 @@ export const Title: React.FC<Props> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const enter = spring({ frame, fps, config: { damping: 200, mass: 0.8 } });
-  const sub = spring({ frame: frame - 10, fps, config: { damping: 200 } });
-  const exit = interpolate(frame, [duration - 14, duration], [1, 0], {
+  const enter = spring({ frame, fps: springFps(fps), config: { damping: 200, mass: 0.8 } });
+  const sub = spring({ frame: frame - beat(10), fps: springFps(fps), config: { damping: 200 } });
+  const exit = interpolate(frame, [duration - beat(14), duration], [1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });

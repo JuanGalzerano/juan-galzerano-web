@@ -1,6 +1,7 @@
 import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { accents, colors, rgba } from '../../theme';
 import { fontFamily } from '../../fonts';
+import { beat, springFps } from '../../timing';
 import { SceneFrame } from './SceneFrame';
 
 type Props = { readonly duration: number };
@@ -59,8 +60,8 @@ export const Topology: React.FC<Props> = ({ duration }) => {
           const b = MODULES[to];
           const length = Math.hypot(b.x - a.x, b.y - a.y);
           const draw = spring({
-            frame: frame - 30 - i * 6,
-            fps,
+            frame: frame - beat(30) - i * beat(6),
+            fps: springFps(fps),
             config: { damping: 200 },
           });
 
@@ -82,8 +83,8 @@ export const Topology: React.FC<Props> = ({ duration }) => {
         {/* Módulos. */}
         {MODULES.map((mod, i) => {
           const appear = spring({
-            frame: frame - i * 8,
-            fps,
+            frame: frame - i * beat(8),
+            fps: springFps(fps),
             config: { damping: 200, mass: 0.5 },
           });
 

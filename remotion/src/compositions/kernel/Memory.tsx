@@ -1,6 +1,7 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { colors } from '../../theme';
 import { fontFamily } from '../../fonts';
+import { beat, springFps } from '../../timing';
 import { SceneFrame } from './SceneFrame';
 
 type Props = { readonly duration: number };
@@ -55,10 +56,10 @@ const slot = (gap: (typeof GAPS)[number]) => u(gap.from);
  * Cronograma de los tres intentos. Cada uno se posiciona sobre el hueco, sube y
  * vuelve a bajar — salvo el último, que entra y se queda.
  */
-const TRY_1 = { move: 45, up: 62, back: 78 };
-const TRY_2 = { move: 88, up: 105, back: 121 };
-const TRY_3 = { move: 131, up: 152 };
-const COMPACT_AT = 200;
+const TRY_1 = { move: beat(45), up: beat(62), back: beat(78) };
+const TRY_2 = { move: beat(88), up: beat(105), back: beat(121) };
+const TRY_3 = { move: beat(131), up: beat(152) };
+const COMPACT_AT = beat(200);
 
 export const Memory: React.FC<Props> = ({ duration }) => {
   const frame = useCurrentFrame();
@@ -66,7 +67,7 @@ export const Memory: React.FC<Props> = ({ duration }) => {
 
   const compact = spring({
     frame: frame - COMPACT_AT,
-    fps,
+    fps: springFps(fps),
     config: { damping: 200, mass: 1.2 },
   });
 
@@ -75,7 +76,7 @@ export const Memory: React.FC<Props> = ({ duration }) => {
   // Recorrido horizontal: de hueco en hueco.
   const x = interpolate(
     frame,
-    [TRY_1.move - 14, TRY_1.move, TRY_2.move - 12, TRY_2.move, TRY_3.move - 12, TRY_3.move],
+    [TRY_1.move - beat(14), TRY_1.move, TRY_2.move - beat(12), TRY_2.move, TRY_3.move - beat(12), TRY_3.move],
     [slot(GAPS[0]), slot(GAPS[0]), slot(GAPS[0]), slot(GAPS[1]), slot(GAPS[1]), slot(GAPS[2])],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
   );
@@ -90,8 +91,8 @@ export const Memory: React.FC<Props> = ({ duration }) => {
 
   // Al chocar contra un hueco que le queda chico, tiembla.
   const rejecting =
-    (frame >= TRY_1.up - 5 && frame <= TRY_1.up + 10) ||
-    (frame >= TRY_2.up - 5 && frame <= TRY_2.up + 10);
+    (frame >= TRY_1.up - beat(5) && frame <= TRY_1.up + beat(10)) ||
+    (frame >= TRY_2.up - beat(5) && frame <= TRY_2.up + beat(10));
   const shake = rejecting ? Math.sin(frame * 1.6) * 5 : 0;
 
   // Ya adentro, el proceso viaja con el resto cuando se compacta.
@@ -161,8 +162,8 @@ export const Memory: React.FC<Props> = ({ duration }) => {
         {/* Segmentos ya asignados. */}
         {SEGMENTS.map((seg, i) => {
           const appear = spring({
-            frame: frame - 15 - i * 8,
-            fps,
+            frame: frame - beat(15) - i * beat(8),
+            fps: springFps(fps),
             config: { damping: 200, mass: 0.5 },
           });
           const sx = interpolate(compact, [0, 1], [u(seg.from), u(seg.to)]);

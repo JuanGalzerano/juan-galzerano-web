@@ -1,6 +1,7 @@
 import { spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { colors } from '../../theme';
 import { fontFamily } from '../../fonts';
+import { beat, springFps } from '../../timing';
 import { SceneFrame } from './SceneFrame';
 
 type Props = { readonly duration: number };
@@ -18,7 +19,7 @@ const TRACK = { x1: 240, x2: 1560, y: 200 } as const;
 const END_HALF = 130;
 
 /** Frames que tarda el paquete en cruzar el enlace de punta a punta. */
-const CROSSING = 26;
+const CROSSING = beat(26);
 /** Ida y vuelta. */
 const ROUND_TRIP = CROSSING * 2;
 
@@ -28,10 +29,10 @@ export const Protocol: React.FC<Props> = ({ duration }) => {
 
   // Un solo fundido para toda la escena: aparece completa y se lee de una.
   // Antes cada campo entraba por separado y obligaba a esperar para entender.
-  const enter = spring({ frame: frame - 4, fps, config: { damping: 200, mass: 0.6 } });
+  const enter = spring({ frame: frame - beat(4), fps: springFps(fps), config: { damping: 200, mass: 0.6 } });
 
   // El paquete va y vuelve sin parar: pedido y respuesta.
-  const elapsed = Math.max(0, frame - 10);
+  const elapsed = Math.max(0, frame - beat(10));
   const phase = elapsed % ROUND_TRIP;
   const leg = (phase % CROSSING) / CROSSING;
   const travel = phase < CROSSING ? leg : 1 - leg;
