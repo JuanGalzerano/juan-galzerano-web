@@ -7,37 +7,54 @@ import { SceneFrame } from './SceneFrame';
 type Props = { readonly duration: number };
 
 /**
- * Los siete módulos del kernel apareciendo uno por uno y tendiendo los enlaces.
- * Los nombres salen de `projects[0].detail` en `src/content.ts`.
+ * Los procesos del kernel apareciendo uno por uno y tendiendo los enlaces.
+ *
+ * `utils` no está en el diagrama a propósito: no es un proceso que corra
+ * aparte ni hable por socket, es la librería compartida donde viven las
+ * funciones comunes y la serialización. Dibujarlo como un nodo más daría a
+ * entender que es un séptimo extremo de la red, que es justo lo contrario.
+ *
+ * Las posiciones están elegidas para que ningún enlace cruce a otro ni pase
+ * por encima de una caja: cada arista une vecinos en la grilla.
  */
+
 type ModuleNode = {
   readonly name: string;
   readonly x: number;
   readonly y: number;
-  /** Los dos módulos centrales del kernel, resaltados en lima. */
+  /** Los dos procesos del kernel, resaltados en lima. */
   readonly hub?: boolean;
 };
 
 const MODULES: readonly ModuleNode[] = [
-  { name: 'kernel_scheduler', x: 960, y: 150, hub: true },
-  { name: 'kernel_memory', x: 960, y: 400, hub: true },
-  { name: 'cpu', x: 380, y: 275 },
-  { name: 'memory_stick', x: 1540, y: 275 },
-  { name: 'swap', x: 1540, y: 545 },
-  { name: 'io', x: 380, y: 545 },
-  { name: 'utils', x: 960, y: 660 },
+  { name: 'io', x: 250, y: 120 },
+  { name: 'kernel_scheduler', x: 760, y: 120, hub: true },
+  { name: 'cpu', x: 1270, y: 120 },
+  { name: 'kernel_memory', x: 1010, y: 400, hub: true },
+  { name: 'memory_stick', x: 1600, y: 400 },
+  { name: 'swap', x: 1010, y: 660 },
 ];
 
-const EDGES = [
-  [0, 2],
-  [0, 1],
-  [0, 5],
-  [1, 3],
-  [1, 4],
-  [1, 6],
-  [2, 5],
-  [3, 4],
-] as const;
+const IO = 0;
+const SCHEDULER = 1;
+const CPU = 2;
+const MEMORY = 3;
+const STICK = 4;
+const SWAP = 5;
+
+/**
+ * Quién habla con quién. Ojo: es la topología real del TP, no una malla
+ * completa — `io` sólo conoce al scheduler y `swap` sólo a kernel_memory.
+ */
+const EDGES: readonly [number, number][] = [
+  [IO, SCHEDULER],
+  [SCHEDULER, CPU],
+  [SCHEDULER, MEMORY],
+  [CPU, MEMORY],
+  [CPU, STICK],
+  [STICK, MEMORY],
+  [SWAP, MEMORY],
+];
 
 const BOX_W = 300;
 const BOX_H = 70;
@@ -50,7 +67,7 @@ export const Topology: React.FC<Props> = ({ duration }) => {
     <SceneFrame
       index="01"
       eyebrow="Arquitectura"
-      title="Siete módulos, un solo canal"
+      title="Seis procesos, un solo canal"
       duration={duration}
     >
       <svg width={1680} height={760} viewBox="0 0 1920 760" style={{ overflow: 'visible' }}>
@@ -80,7 +97,7 @@ export const Topology: React.FC<Props> = ({ duration }) => {
           );
         })}
 
-        {/* Módulos. */}
+        {/* Procesos. */}
         {MODULES.map((mod, i) => {
           const appear = spring({
             frame: frame - i * beat(8),
@@ -124,6 +141,17 @@ export const Topology: React.FC<Props> = ({ duration }) => {
             </g>
           );
         })}
+
+        <text
+          x={0}
+          y={750}
+          fill={colors.chalkFaint}
+          fontFamily={fontFamily.mono}
+          fontSize={22}
+          opacity={spring({ frame: frame - beat(90), fps: springFps(fps), config: { damping: 200 } })}
+        >
+          utils no corre aparte: es la librería compartida de serialización
+        </text>
       </svg>
     </SceneFrame>
   );

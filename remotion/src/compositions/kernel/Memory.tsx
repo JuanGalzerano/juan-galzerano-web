@@ -102,7 +102,7 @@ export const Memory: React.FC<Props> = ({ duration }) => {
     <SceneFrame
       index="04"
       eyebrow="Memoria"
-      title="Buscar un hueco, y si no entra, compactar"
+      title="Buscar un hueco, y si no encuentra, compacta"
       duration={duration}
     >
       <svg width={1680} height={620} viewBox="0 0 1680 620" style={{ overflow: 'visible' }}>
