@@ -1,11 +1,59 @@
+import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { GithubIcon } from './BrandIcons'
 import { nav, projects, site, type Project } from '../content'
+import { useAmbientVideo } from '../useAmbientVideo'
 import { Reveal } from './Reveal'
 import { SectionHead } from './SectionHead'
 
 function LangDot({ color }: { color: string }) {
   return <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+}
+
+/**
+ * Bucle ambiente que llena el hueco al costado del resumen. No explica nada por
+ * sí solo: es una viñeta en movimiento con la topología del proyecto.
+ *
+ * `mix-blend-mode: screen` sobre el negro del video: el negro es neutro bajo ese
+ * blend, así que sólo se suman los trazos y el recuadro toma el fondo de la card
+ * en vez de plantarle un rectángulo negro encima.
+ *
+ * Sólo en `lg` para arriba, que es donde existe el hueco; abajo de eso la card
+ * es de una sola columna y meterlo apilaría por apilar.
+ */
+function ProjectLoop({ loop }: { loop: NonNullable<Project['loop']> }) {
+  const { ref, started } = useAmbientVideo()
+
+  return (
+    <div className="ticked relative hidden border border-line lg:block">
+      <video
+        ref={ref}
+        className="block w-full [mix-blend-mode:screen]"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={loop.poster}
+        aria-label={loop.alt}
+      >
+        <source src={loop.webm} type="video/webm" />
+        <source src={loop.mp4} type="video/mp4" />
+      </video>
+
+      {/* Ver la nota en useAmbientVideo: el navegador tira el poster apenas se
+          pide play(), aunque todavía no haya decodificado nada. Este overlay lo
+          sostiene hasta que el tiempo corre de verdad. */}
+      {started ? null : (
+        <img
+          src={loop.poster}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full [mix-blend-mode:screen]"
+        />
+      )}
+    </div>
+  )
 }
 
 function FeaturedCard({ project }: { project: Project }) {
@@ -28,8 +76,17 @@ function FeaturedCard({ project }: { project: Project }) {
         </span>
       </div>
 
-      <h3 className="mt-5 font-display text-3xl leading-tight text-chalk sm:text-4xl">{project.name}</h3>
-      <p className="mt-4 max-w-2xl leading-relaxed text-chalk-dim">{project.summary}</p>
+      {/* Dos columnas en desktop: el texto no llega al borde derecho y ese hueco
+          lo ocupa el bucle. Sin bucle, el resumen se limita solo con max-w-2xl. */}
+      <div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        <div>
+          <h3 className="font-display text-3xl leading-tight text-chalk sm:text-4xl">{project.name}</h3>
+          <p className={`mt-4 leading-relaxed text-chalk-dim ${project.loop ? '' : 'max-w-2xl'}`}>
+            {project.summary}
+          </p>
+        </div>
+        {project.loop ? <ProjectLoop loop={project.loop} /> : null}
+      </div>
 
       {project.detail && (
         <dl className="mt-7 grid gap-px border border-line bg-line sm:grid-cols-2">
@@ -52,6 +109,64 @@ function FeaturedCard({ project }: { project: Project }) {
         ))}
       </ul>
     </a>
+  )
+}
+
+/**
+ * Explainer del proyecto, renderizado con Remotion (ver `remotion/`).
+ *
+ * No es un reproductor: no lleva controles ni barra de progreso. Se comporta
+ * como una pieza más de la página — un bucle que corre solo mientras está a la
+ * vista y se frena cuando no. Sin audio, así que no hay nada que silenciar.
+ *
+ * Va como hermano de la card y no adentro: `FeaturedCard` es un `<a>` entero y
+ * cualquier click ahí dentro navegaría al repo.
+ *
+ * `preload="none"`: los 2,1 MB del .webm no se bajan hasta que el bloque entra
+ * en viewport y `play()` dispara la carga. Quien pasa de largo baja sólo el JPEG.
+ */
+function ProjectVideo({ video }: { video: NonNullable<Project['video']> }) {
+  // Pesa 2,1 MB: sólo corre (y sólo se descarga) cuando está a la vista.
+  const { ref, started } = useAmbientVideo({ playOnlyInView: true })
+  const [reduced] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+
+  return (
+    <figure className="ticked mt-px border border-line bg-ink-800 p-4 sm:p-6">
+      {reduced ? (
+        <img src={video.poster} alt={video.caption} className="w-full border border-line" />
+      ) : (
+        <div className="relative">
+          <video
+            ref={ref}
+            className="block w-full border border-line"
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster={video.poster}
+            aria-label={video.caption}
+          >
+            <source src={video.webm} type="video/webm" />
+            <source src={video.mp4} type="video/mp4" />
+          </video>
+
+          {/* El clip abre con un fundido, así que su frame 0 es casi negro. Sin
+              este overlay, pedir play() cambia el poster por ese negro y, si la
+              reproducción no arranca, queda un rectángulo vacío. */}
+          {started ? null : (
+            <img
+              src={video.poster}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full border border-line"
+            />
+          )}
+        </div>
+      )}
+      <figcaption className="tag mt-4 text-chalk-faint">{video.caption}</figcaption>
+    </figure>
   )
 }
 
@@ -97,6 +212,7 @@ export function Projects() {
         {featured.map((project, i) => (
           <Reveal key={project.repo} delay={0.05 * i}>
             <FeaturedCard project={project} />
+            {project.video ? <ProjectVideo video={project.video} /> : null}
           </Reveal>
         ))}
       </div>

@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Remotion (subproyecto de video en remotion/)
+remotion/node_modules
+remotion/out
+remotion/*.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,0 +1,26 @@
+{
+  "name": "juan-galzerano-video",
+  "version": "0.0.0",
+  "description": "Remotion compositions for juan-galzerano-web",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render",
+    "compositions": "remotion compositions",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.513",
+    "@remotion/google-fonts": "^4.0.513",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.513"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@types/web": "0.0.166",
+    "typescript": "5.9.3"
+  }
+}

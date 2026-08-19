@@ -12,7 +12,7 @@ export const site = {
   github: 'https://github.com/JuanGalzerano',
   githubUser: 'JuanGalzerano',
   linkedin: 'https://www.linkedin.com/in/juan-ignacio-galzerano/',
-  status: 'Estudiante de Ing. en Sistemas — UTN',
+  status: 'Operation Intern en PedidosYa — Ing. en Sistemas, UTN',
 } as const
 
 export const nav = [
@@ -28,7 +28,7 @@ export const nav = [
 export const terminal = [
   {
     command: 'whoami',
-    output: 'juan — 3.er año de Ingeniería en Sistemas, UTN FRBA',
+    output: 'juan — Operation Intern en PedidosYa · 3.er año de Ing. en Sistemas, UTN FRBA',
   },
   {
     command: 'cat foco.txt',
@@ -63,6 +63,20 @@ export type Project = {
   tags: string[]
   featured?: boolean
   detail?: { label: string; value: string }[]
+  /** Bucle ambiente para el hueco de la card. Renderizado con Remotion. */
+  loop?: {
+    webm: string
+    mp4: string
+    poster: string
+    alt: string
+  }
+  /** Explainer renderizado con Remotion. Los archivos viven en public/. */
+  video?: {
+    webm: string
+    mp4: string
+    poster: string
+    caption: string
+  }
 }
 
 export const projects: Project[] = [
@@ -76,6 +90,18 @@ export const projects: Project[] = [
     languageColor: '#8f9296',
     tags: ['Sockets TCP', 'pthreads', 'Semáforos', 'Serialización binaria', 'Makefile'],
     featured: true,
+    loop: {
+      webm: '/topology-loop.webm',
+      mp4: '/topology-loop.mp4',
+      poster: '/topology-loop.jpg',
+      alt: 'Los siete módulos del kernel conectados, con paquetes viajando por los enlaces',
+    },
+    video: {
+      webm: '/kernel-explainer.webm',
+      mp4: '/kernel-explainer.mp4',
+      poster: '/kernel-explainer.jpg',
+      caption: '45 s — arquitectura, protocolo, planificación y memoria',
+    },
     detail: [
       { label: 'Módulos', value: 'kernel_scheduler · kernel_memory · cpu · memory_stick · swap · io · utils' },
       { label: 'Concurrencia', value: 'pthread_mutex_t, sem_t y pthread_cond_t sin deadlocks ni race conditions' },
@@ -91,7 +117,7 @@ export const projects: Project[] = [
       'Buscador que agrupa publicaciones de distintas tiendas para el mismo producto y las ordena por un score compuesto — precio final con envío, cuotas, reputación del vendedor, opiniones y garantía — no solo por el precio más bajo.',
     language: 'Python',
     languageColor: '#3572a5',
-    tags: ['FastAPI', 'PostgreSQL', 'Adapters por fuente', 'GraphQL / VTEX', 'Scoring'],
+    tags: ['FastAPI', 'SQL Server', 'Adapters por fuente', 'GraphQL / VTEX', 'Scoring'],
     featured: true,
     detail: [
       { label: 'Fuentes activas', value: 'Frávega, Cetrogar, Naldo, OnCity, Megatone, Compra Gamer' },
@@ -166,8 +192,19 @@ export const stack = {
 
 export const experience = {
   eyebrow: 'Experiencia',
-  title: 'Dónde trabajé',
+  title: 'Dónde trabajo',
   items: [
+    {
+      company: 'PedidosYa',
+      role: 'Operation Intern',
+      period: 'ago 2026 — Presente',
+      bullets: [
+        'Optimización de la operación a partir del análisis de datos, dejando cada cambio documentado para que el equipo lo pueda replicar.',
+        'Armado y seguimiento de reportes con métricas de operación y KPIs del día a día.',
+        'Revisión de procesos operativos y propuestas de mejora continua sobre los que no funcionan bien.',
+        'Soporte operativo a repartidores y comercios ante incidencias durante la operación.',
+      ],
+    },
     {
       company: 'Data Factory',
       role: 'User Experience Researcher',
@@ -200,5 +237,5 @@ export const education = {
 export const contact = {
   eyebrow: 'Contacto',
   title: 'Hablemos',
-  text: 'Estoy buscando una pasantía o primer empleo en desarrollo. Si algo de acá te sirve, escribime.',
+  text: 'Trabajo en PedidosYa y sigo construyendo cosas por mi cuenta. Si algo de acá te sirve o querés charlar de un proyecto, escribime.',
 } as const
