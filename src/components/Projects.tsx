@@ -3,57 +3,12 @@ import { ArrowUpRight } from 'lucide-react'
 import { GithubIcon } from './BrandIcons'
 import { nav, projects, site, type Project } from '../content'
 import { useAmbientVideo } from '../useAmbientVideo'
+import { TopologyLoop } from './TopologyLoop'
 import { Reveal } from './Reveal'
 import { SectionHead } from './SectionHead'
 
 function LangDot({ color }: { color: string }) {
   return <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-}
-
-/**
- * Bucle ambiente que llena el hueco al costado del resumen. No explica nada por
- * sí solo: es una viñeta en movimiento con la topología del proyecto.
- *
- * `mix-blend-mode: screen` sobre el negro del video: el negro es neutro bajo ese
- * blend, así que sólo se suman los trazos y el recuadro toma el fondo de la card
- * en vez de plantarle un rectángulo negro encima.
- *
- * Sólo en `lg` para arriba, que es donde existe el hueco; abajo de eso la card
- * es de una sola columna y meterlo apilaría por apilar.
- */
-function ProjectLoop({ loop }: { loop: NonNullable<Project['loop']> }) {
-  const { ref, started } = useAmbientVideo()
-
-  return (
-    <div className="ticked relative hidden border border-line lg:block">
-      <video
-        ref={ref}
-        className="block w-full [mix-blend-mode:screen]"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={loop.poster}
-        aria-label={loop.alt}
-      >
-        <source src={loop.webm} type="video/webm" />
-        <source src={loop.mp4} type="video/mp4" />
-      </video>
-
-      {/* Ver la nota en useAmbientVideo: el navegador tira el poster apenas se
-          pide play(), aunque todavía no haya decodificado nada. Este overlay lo
-          sostiene hasta que el tiempo corre de verdad. */}
-      {started ? null : (
-        <img
-          src={loop.poster}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full [mix-blend-mode:screen]"
-        />
-      )}
-    </div>
-  )
 }
 
 function FeaturedCard({ project }: { project: Project }) {
@@ -85,7 +40,13 @@ function FeaturedCard({ project }: { project: Project }) {
             {project.summary}
           </p>
         </div>
-        {project.loop ? <ProjectLoop loop={project.loop} /> : null}
+        {project.loop ? (
+          /* Viñeta animada al costado del resumen. Sólo en lg para arriba, que
+             es donde existe el hueco: abajo de eso la card es de una columna. */
+          <div className="ticked hidden border border-line lg:block">
+            <TopologyLoop className="block w-full" />
+          </div>
+        ) : null}
       </div>
 
       {project.detail && (

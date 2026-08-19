@@ -63,13 +63,8 @@ export type Project = {
   tags: string[]
   featured?: boolean
   detail?: { label: string; value: string }[]
-  /** Bucle ambiente para el hueco de la card. Renderizado con Remotion. */
-  loop?: {
-    webm: string
-    mp4: string
-    poster: string
-    alt: string
-  }
+  /** Muestra la viñeta animada de la topología al costado del resumen. */
+  loop?: boolean
   /** Explainer renderizado con Remotion. Los archivos viven en public/. */
   video?: {
     webm: string
@@ -90,12 +85,7 @@ export const projects: Project[] = [
     languageColor: '#8f9296',
     tags: ['Sockets TCP', 'pthreads', 'Semáforos', 'Serialización binaria', 'Makefile'],
     featured: true,
-    loop: {
-      webm: '/topology-loop.webm',
-      mp4: '/topology-loop.mp4',
-      poster: '/topology-loop.jpg',
-      alt: 'Los siete módulos del kernel conectados, con paquetes viajando por los enlaces',
-    },
+    loop: true,
     video: {
       webm: '/kernel-explainer.webm',
       mp4: '/kernel-explainer.mp4',
