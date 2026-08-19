@@ -83,49 +83,43 @@ function FeaturedCard({ project }: { project: Project }) {
  * Va como hermano de la card y no adentro: `FeaturedCard` es un `<a>` entero y
  * cualquier click ahí dentro navegaría al repo.
  *
- * `preload="none"`: los 2,1 MB del .webm no se bajan hasta que el bloque entra
- * en viewport y `play()` dispara la carga. Quien pasa de largo baja sólo el JPEG.
+ * Usa `autoplay` nativo, sin gatearlo con IntersectionObserver ni taparlo con
+ * un poster: cada capa de más era una forma nueva de que terminara congelado.
+ * El costo es que los 2,1 MB del .webm se descargan al cargar la página.
+ *
+ * El `.mp4` va segundo y sólo lo usa quien no soporte VP9 — pesa 3,2 MB.
  */
 function ProjectVideo({ video }: { video: NonNullable<Project['video']> }) {
-  // Pesa 2,1 MB: sólo corre (y sólo se descarga) cuando está a la vista.
-  const { ref, started } = useAmbientVideo({ playOnlyInView: true })
+  const ref = useAmbientVideo()
   const [reduced] = useState(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   )
 
+  if (reduced) {
+    return (
+      <figure className="ticked mt-px border border-line bg-ink-800 p-4 sm:p-6">
+        <img src={video.poster} alt={video.caption} className="block w-full border border-line" />
+        <figcaption className="tag mt-4 text-chalk-faint">{video.caption}</figcaption>
+      </figure>
+    )
+  }
+
   return (
     <figure className="ticked mt-px border border-line bg-ink-800 p-4 sm:p-6">
-      {reduced ? (
-        <img src={video.poster} alt={video.caption} className="w-full border border-line" />
-      ) : (
-        <div className="relative">
-          <video
-            ref={ref}
-            className="block w-full border border-line"
-            muted
-            loop
-            playsInline
-            preload="none"
-            poster={video.poster}
-            aria-label={video.caption}
-          >
-            <source src={video.webm} type="video/webm" />
-            <source src={video.mp4} type="video/mp4" />
-          </video>
-
-          {/* El clip abre con un fundido, así que su frame 0 es casi negro. Sin
-              este overlay, pedir play() cambia el poster por ese negro y, si la
-              reproducción no arranca, queda un rectángulo vacío. */}
-          {started ? null : (
-            <img
-              src={video.poster}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 h-full w-full border border-line"
-            />
-          )}
-        </div>
-      )}
+      <video
+        ref={ref}
+        className="block w-full border border-line"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={video.poster}
+        aria-label={video.caption}
+      >
+        <source src={video.webm} type="video/webm" />
+        <source src={video.mp4} type="video/mp4" />
+      </video>
       <figcaption className="tag mt-4 text-chalk-faint">{video.caption}</figcaption>
     </figure>
   )

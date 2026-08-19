@@ -6,57 +6,111 @@ import { SceneFrame } from './SceneFrame';
 type Props = { readonly duration: number };
 
 /**
- * Segmentos en memoria. `hole` marca los huecos que deja la fragmentación.
- * `from`/`to` son la posición antes y después de compactar, en unidades de la
- * barra (0..100).
+ * Cómo se le busca lugar a un proceso en memoria segmentada.
+ *
+ * El proceso entrante prueba los huecos en orden: los dos primeros son más
+ * chicos que él y rebota contra la barra, el tercero le entra. Después se
+ * compacta para juntar lo que quedó suelto.
+ *
+ * Las medidas están en unidades de 0 a 100 sobre el ancho de la barra, así el
+ * layout no depende de píxeles.
  */
+
 type Segment = {
   readonly id: string;
   readonly size: number;
+  /** Posición inicial y posición después de compactar. */
   readonly from: number;
   readonly to: number;
-  /** Hueco libre entre segmentos: se dibuja punteado y muere al compactar. */
-  readonly hole?: boolean;
 };
 
 const SEGMENTS: readonly Segment[] = [
   { id: 'P1', size: 16, from: 0, to: 0 },
-  { id: '', size: 9, from: 16, to: 0, hole: true },
   { id: 'P2', size: 22, from: 25, to: 16 },
-  { id: '', size: 7, from: 47, to: 0, hole: true },
   { id: 'P3', size: 13, from: 54, to: 38 },
-  { id: '', size: 11, from: 67, to: 0, hole: true },
-  { id: 'P4', size: 18, from: 78, to: 51 },
 ];
 
-const BAR = { x: 0, y: 170, w: 1680, h: 96 } as const;
+/** Tamaño del proceso que quiere entrar. Sólo le entra en el tercer hueco. */
+const BLOCK = 18;
+
+const GAPS = [
+  { from: 16, size: 9 },
+  { from: 47, size: 7 },
+  { from: 67, size: 20 },
+] as const;
+
+const BAR = { y: 150, w: 1680, h: 96 } as const;
+
+/** Dónde espera el proceso entre intento e intento. */
+const PARK = BAR.y + BAR.h + 150;
+/** Hasta dónde llega cuando el hueco lo rechaza: justo debajo de la barra. */
+const BLOCKED = BAR.y + BAR.h + 16;
 
 const u = (units: number) => (units / 100) * BAR.w;
+
+/** Borde izquierdo del hueco, para que el bloque entre alineado. */
+const slot = (gap: (typeof GAPS)[number]) => u(gap.from);
+
+/**
+ * Cronograma de los tres intentos. Cada uno se posiciona sobre el hueco, sube y
+ * vuelve a bajar — salvo el último, que entra y se queda.
+ */
+const TRY_1 = { move: 45, up: 62, back: 78 };
+const TRY_2 = { move: 88, up: 105, back: 121 };
+const TRY_3 = { move: 131, up: 152 };
+const COMPACT_AT = 200;
 
 export const Memory: React.FC<Props> = ({ duration }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Fase 1 (0-110): se llena. Fase 2 (110-190): compacta. Fase 3 (190+): swap.
   const compact = spring({
-    frame: frame - 120,
+    frame: frame - COMPACT_AT,
     fps,
     config: { damping: 200, mass: 1.2 },
   });
 
-  const swapOut = spring({ frame: frame - 210, fps, config: { damping: 200 } });
+  const inserted = frame >= TRY_3.up;
+
+  // Recorrido horizontal: de hueco en hueco.
+  const x = interpolate(
+    frame,
+    [TRY_1.move - 14, TRY_1.move, TRY_2.move - 12, TRY_2.move, TRY_3.move - 12, TRY_3.move],
+    [slot(GAPS[0]), slot(GAPS[0]), slot(GAPS[0]), slot(GAPS[1]), slot(GAPS[1]), slot(GAPS[2])],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  );
+
+  // Recorrido vertical: sube, choca, baja. En el tercer intento se queda arriba.
+  const y = interpolate(
+    frame,
+    [TRY_1.move, TRY_1.up, TRY_1.back, TRY_2.move, TRY_2.up, TRY_2.back, TRY_3.move, TRY_3.up],
+    [PARK, BLOCKED, PARK, PARK, BLOCKED, PARK, PARK, BAR.y],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
+  );
+
+  // Al chocar contra un hueco que le queda chico, tiembla.
+  const rejecting =
+    (frame >= TRY_1.up - 5 && frame <= TRY_1.up + 10) ||
+    (frame >= TRY_2.up - 5 && frame <= TRY_2.up + 10);
+  const shake = rejecting ? Math.sin(frame * 1.6) * 5 : 0;
+
+  // Ya adentro, el proceso viaja con el resto cuando se compacta.
+  const compactedX = interpolate(compact, [0, 1], [slot(GAPS[2]), u(51)]);
 
   return (
     <SceneFrame
       index="04"
       eyebrow="Memoria"
-      title="Segmentación, compactación y swap"
+      title="Buscar un hueco, y si no entra, compactar"
       duration={duration}
     >
       <svg width={1680} height={620} viewBox="0 0 1680 620" style={{ overflow: 'visible' }}>
-        {/* Contenedor de la memoria. */}
+        <text x={0} y={56} fill={colors.chalkDim} fontFamily={fontFamily.sans} fontSize={30}>
+          Un proceso nuevo prueba los huecos libres hasta encontrar uno donde entre.
+        </text>
+
         <rect
-          x={BAR.x}
+          x={0}
           y={BAR.y}
           width={BAR.w}
           height={BAR.h}
@@ -64,57 +118,71 @@ export const Memory: React.FC<Props> = ({ duration }) => {
           stroke={colors.line}
           strokeWidth={1.5}
         />
-        <text x={0} y={BAR.y - 24} fill={colors.chalkFaint} fontFamily={fontFamily.mono} fontSize={22}>
+        <text x={0} y={BAR.y - 22} fill={colors.chalkFaint} fontFamily={fontFamily.mono} fontSize={22}>
           memoria principal
         </text>
 
+        {/* Huecos libres, con su tamaño arriba. Los que le quedan chicos al
+            proceso se marcan en naranja mientras lo rechazan. */}
+        {GAPS.map((gap, i) => {
+          const isTarget =
+            (i === 0 && frame >= TRY_1.move && frame < TRY_1.back) ||
+            (i === 1 && frame >= TRY_2.move && frame < TRY_2.back) ||
+            (i === 2 && frame >= TRY_3.move);
+          const tooSmall = isTarget && i < 2;
+          const filled = i === 2 && inserted;
+
+          return (
+            <g key={`gap-${i}`} opacity={(1 - compact) * (filled ? 0 : 1)}>
+              <rect
+                x={u(gap.from)}
+                y={BAR.y}
+                width={u(gap.size)}
+                height={BAR.h}
+                fill="none"
+                stroke={tooSmall ? colors.anno : colors.chalkFaint}
+                strokeWidth={tooSmall ? 2 : 1}
+                strokeDasharray="6 6"
+              />
+              <text
+                x={u(gap.from) + u(gap.size) / 2}
+                y={BAR.y - 22}
+                textAnchor="middle"
+                fill={tooSmall ? colors.anno : colors.chalkFaint}
+                fontFamily={fontFamily.mono}
+                fontSize={20}
+              >
+                {gap.size}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Segmentos ya asignados. */}
         {SEGMENTS.map((seg, i) => {
           const appear = spring({
-            frame: frame - 20 - i * 10,
+            frame: frame - 15 - i * 8,
             fps,
             config: { damping: 200, mass: 0.5 },
           });
-
-          if (seg.hole) {
-            // Los huecos desaparecen al compactar: eso es toda la idea.
-            return (
-              <g key={`hole-${i}`} opacity={appear * (1 - compact)}>
-                <rect
-                  x={u(seg.from)}
-                  y={BAR.y}
-                  width={u(seg.size)}
-                  height={BAR.h}
-                  fill="none"
-                  stroke={colors.chalkFaint}
-                  strokeWidth={1}
-                  strokeDasharray="6 6"
-                />
-              </g>
-            );
-          }
-
-          const x = interpolate(compact, [0, 1], [u(seg.from), u(seg.to)]);
-
-          // P4 es el que se manda a swap al final.
-          const isSwapped = seg.id === 'P4';
-          const lift = isSwapped ? swapOut * 250 : 0;
+          const sx = interpolate(compact, [0, 1], [u(seg.from), u(seg.to)]);
 
           return (
-            <g key={seg.id} opacity={appear} transform={`translate(${x} ${lift})`}>
+            <g key={seg.id} opacity={appear} transform={`translate(${sx} 0)`}>
               <rect
                 x={0}
                 y={BAR.y}
                 width={u(seg.size)}
                 height={BAR.h}
                 fill={colors.ink700}
-                stroke={isSwapped && swapOut > 0.05 ? colors.anno : colors.draft}
+                stroke={colors.draft}
                 strokeWidth={2}
               />
               <text
                 x={u(seg.size) / 2}
                 y={BAR.y + BAR.h / 2 + 10}
                 textAnchor="middle"
-                fill={isSwapped && swapOut > 0.05 ? colors.anno : colors.draft}
+                fill={colors.draft}
                 fontFamily={fontFamily.mono}
                 fontSize={28}
               >
@@ -124,20 +192,64 @@ export const Memory: React.FC<Props> = ({ duration }) => {
           );
         })}
 
-        {/* Disco de swap, abajo. */}
-        <g opacity={spring({ frame: frame - 190, fps, config: { damping: 200 } })}>
-          <rect x={0} y={420} width={BAR.w} height={96} fill="none" stroke={colors.line} strokeWidth={1.5} strokeDasharray="10 8" />
-          <text x={0} y={400} fill={colors.chalkFaint} fontFamily={fontFamily.mono} fontSize={22}>
-            swap en disco
+        {/* El proceso que quiere entrar. */}
+        <g transform={`translate(${(inserted ? compactedX : x) + shake} ${y})`}>
+          <rect
+            x={0}
+            y={0}
+            width={u(BLOCK)}
+            height={BAR.h}
+            fill={colors.ink700}
+            stroke={rejecting ? colors.anno : colors.draft}
+            strokeWidth={2}
+          />
+          <text
+            x={u(BLOCK) / 2}
+            y={BAR.h / 2 + 10}
+            textAnchor="middle"
+            fill={rejecting ? colors.anno : colors.draft}
+            fontFamily={fontFamily.mono}
+            fontSize={28}
+          >
+            P4
+          </text>
+          <text
+            x={u(BLOCK) / 2}
+            y={BAR.h + 34}
+            textAnchor="middle"
+            fill={colors.chalkFaint}
+            fontFamily={fontFamily.mono}
+            fontSize={20}
+            opacity={inserted ? 0 : 1}
+          >
+            {BLOCK}
+          </text>
+
+          {/* Viaja con el bloque, a su izquierda, para no taparlo. */}
+          <text
+            x={-28}
+            y={BAR.h / 2 + 10}
+            textAnchor="end"
+            fill={colors.anno}
+            fontFamily={fontFamily.mono}
+            fontSize={26}
+            opacity={rejecting ? 1 : 0}
+          >
+            no entra
           </text>
         </g>
 
-        {/* Rótulos de las estrategias de asignación. */}
-        <g opacity={spring({ frame: frame - 60, fps, config: { damping: 200 } })}>
-          <text x={0} y={60} fill={colors.chalkDim} fontFamily={fontFamily.sans} fontSize={30}>
-            Best Fit y Worst Fit para elegir el hueco · compactación cuando ya no alcanza
-          </text>
-        </g>
+        {/* Rótulo de la compactación. */}
+        <text
+          x={0}
+          y={PARK + BAR.h + 30}
+          fill={colors.chalkDim}
+          fontFamily={fontFamily.sans}
+          fontSize={30}
+          opacity={compact}
+        >
+          Compactar junta los segmentos y deja un solo hueco grande al final.
+        </text>
       </svg>
     </SceneFrame>
   );
