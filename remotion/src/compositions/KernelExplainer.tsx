@@ -20,11 +20,13 @@ import { Outro } from './kernel/Outro';
 
 const SCENES = [
   { from: 0, duration: 120, render: (d: number) => <Title duration={d} /> },
-  { from: 120, duration: 270, render: (d: number) => <Topology duration={d} /> },
-  { from: 390, duration: 270, render: (d: number) => <Protocol duration={d} /> },
-  { from: 660, duration: 300, render: (d: number) => <Scheduler duration={d} /> },
-  { from: 960, duration: 300, render: (d: number) => <Memory duration={d} /> },
-  { from: 1260, duration: 90, render: (d: number) => <Outro duration={d} /> },
+  // Arquitectura termina de dibujarse cerca del frame 100; el resto es tiempo
+  // de lectura, y con 240 alcanza.
+  { from: 120, duration: 240, render: (d: number) => <Topology duration={d} /> },
+  { from: 360, duration: 270, render: (d: number) => <Protocol duration={d} /> },
+  { from: 630, duration: 300, render: (d: number) => <Scheduler duration={d} /> },
+  { from: 930, duration: 300, render: (d: number) => <Memory duration={d} /> },
+  { from: 1230, duration: 90, render: (d: number) => <Outro duration={d} /> },
 ] as const;
 
 export const KernelExplainer: React.FC = () => {
